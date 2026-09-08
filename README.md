@@ -40,3 +40,34 @@ Para executar os projetos localmente, você precisará dos seguintes recursos:
 1. **Clone este repositório:**
    ```bash
    git clone [https://github.com/turos22/PO-Java.git](https://github.com/turos22/PO-Java.git)
+
+   Acesse o diretório do projeto:
+    Bash
+
+    cd PO-Java
+
+    Compilar e executar via linha de comando (terminal):
+
+        Navegue até o diretório onde está a classe principal (.java com o método main):
+        Bash
+
+        javac NomeDaClasse.java
+        java NomeDaClasse
+
+    Executar via IDE:
+
+        Abra a IDE de sua preferência.
+
+        Importe a pasta clonada como um projeto Java.
+
+        Selecione a classe principal contendo o método public static void main(String[] args) e execute (Run).
+
+📂 Estrutura de Pastas Sugerida
+PO-Java/
+ ├── src/
+ │    ├── fundamentos/     # Exercícios de lógica inicial e estruturas condicionais/repetição
+ │    ├── poo/             # Classes, objetos, atributos e métodos
+ │    ├── heranca_polimorfismo/ # Exemplos práticos de herança e polimorfismo
+ │    └── interfaces/      # Aplicação de interfaces e contratos
+ ├── .gitignore
+ └── README.md
