@@ -18,6 +18,7 @@ public class Principal extends Application {
     Button botao_inicio;
     Label Texto;
     private Button vet[];
+    Label pivo;
 
 
     public static void main(String[] args)
@@ -34,6 +35,8 @@ public class Principal extends Application {
 
     public class MetodosOrd {
         public MetodosOrd() {}
+
+
 
         public void gnomeSort() {
             int i = 0;
@@ -63,7 +66,7 @@ public class Principal extends Application {
             int cumulativo[] = new int[k+1];
             //Guarda as frequencias
             for (int i = 0; i<vet.length;i++){
-                cumulativo[Integer.parseInt(vet[i].getText())-1] += 1;
+                cumulativo[Integer.parseInt(vet[i].getText())] += 1;
             }
 
             //Junta elas de forma cumulativa
@@ -72,40 +75,34 @@ public class Principal extends Application {
             }
 
             Button vetor_resultado[] = new Button[vet.length];
-            for (int i = vet.length-1; i >= 0; i--){
-                vetor_resultado[cumulativo[Integer.parseInt(vet[i].getText())-1] -1 ] = vet[i];
-                cumulativo[Integer.parseInt(vet[i].getText())-1] -= 1;
+            for (int i = vet.length - 1; i >= 0; i--) {
+                int valor = Integer.parseInt(vet[i].getText());
+                vetor_resultado[cumulativo[valor] - 1] = vet[i];
+                cumulativo[valor]--;
             }
 
             vet = vetor_resultado;
         }
 
-        public void quickSortSemPivo(int ini, int fim) {
-            int aux;
-            int i = ini, j = fim;
-            boolean flag = true;
-            while(i < j){
-                if (flag)
-                    while(i < j && Integer.parseInt(vet[i].getText()) <= Integer.parseInt(vet[j].getText()))
-                        i++;
-                if ( i < j){
-                    Trocar(i, j);
-                    move_botoes(vet, i, j);
-                    flag = !flag;
-                }
-                if (!flag)
-                    while(i < j && Integer.parseInt(vet[i].getText()) < Integer.parseInt(vet[j].getText()))
-                        j--;
-                if (i < j){
-                    Trocar(i, j);
-                    move_botoes(vet, i, j);
-                    flag = !flag;
-                }
-            }
-            if (ini < i)
-                quickSortSemPivo(ini, i - 1);
-            if (j+1 < fim)
-                quickSortSemPivo(j+1, fim);
+        public void quickSortPivo(int ini, int fim) {
+           int pivto = Integer.parseInt(vet[(ini+fim)/2].getText());
+           pivo.setText(Integer.toString(pivto));
+           int aux;
+           int i = ini, j = fim;
+           while(i<j){
+               while(Integer.parseInt(vet[i].getText()) < pivto)i++;
+               while(Integer.parseInt(vet[j].getText()) > pivto)j--;
+               if (i <= j){
+                   Trocar(i, j);
+                   move_botoes(vet, i, j);
+                   i++;
+                   j--;
+               }
+           }
+           if (ini < j)
+               quickSortPivo(ini, j);
+           if (fim > i)
+               quickSortPivo(i, fim);
         }
 
         //public void mergeSort() {
@@ -121,6 +118,29 @@ public class Principal extends Application {
         //}
 
         public void heapSort() {
+            int TL2 = vet.length, pai, F1, F2;
+            int aux, maiorF;
+
+            for(TL2 = vet.length; TL2 > 1; TL2--){
+                {
+                    pai = TL2/2-1;
+                    while(pai >=0){
+                        F1 = pai*2+1;
+                        F2 = F1+1;
+                        maiorF = F1;
+                        if (F2 < TL2 && Integer.parseInt(vet[F2].getText()) > Integer.parseInt(vet[F1].getText()))
+                            maiorF = F2;
+                        if (Integer.parseInt(vet[maiorF].getText()) > Integer.parseInt(vet[pai].getText())){
+                            Trocar(pai, maiorF);
+                            move_botoes(vet, pai, maiorF);
+                        }
+                        pai--;
+                    }
+
+                }
+                Trocar(0, TL2-1);
+                move_botoes(vet, 0, TL2-1);
+            }
         }
 
         public void shellSort() {
@@ -134,6 +154,22 @@ public class Principal extends Application {
         pane = new AnchorPane();
         AnchorPane paneVetor = new AnchorPane();
 
+
+        pivo =new Label();
+        pivo.setLayoutX(20); pivo.setLayoutY(140);
+        pivo.setText("safewefewefsefsaefsfsefsfsfsefsefsfsefsfsdf");
+        pivo.setFont(new Font(20));
+        pivo.setStyle("-fx-font-weight: bold;");
+        pivo.setAlignment(Pos.TOP_RIGHT);
+        pivo.setMouseTransparent(true);
+
+        AnchorPane.setTopAnchor(pivo, 100.0);
+        AnchorPane.setLeftAnchor(pivo, 0.0);
+        AnchorPane.setRightAnchor(pivo, 0.0);
+
+        pane.getChildren().add(pivo);
+
+
         MetodosOrd mt = new MetodosOrd();
 
         Button botao_inicio = new Button();
@@ -143,9 +179,9 @@ public class Principal extends Application {
 
         Button botao_quicksempivo = new Button();
         botao_quicksempivo.setLayoutX(10); botao_quicksempivo.setLayoutY(140);
-        botao_quicksempivo.setText("QuickSort Sem Pivo");
-        botao_quicksempivo.setOnAction(e -> {Texto.setText("QuickSort Sem Pivo");
-            Thread threadOrdenacao = new Thread(() -> mt.quickSortSemPivo(0, 19));
+        botao_quicksempivo.setText("QuickSort Com Pivo");
+        botao_quicksempivo.setOnAction(e -> {Texto.setText("QuickSort Com Pivo");
+            Thread threadOrdenacao = new Thread(() -> mt.quickSortPivo(0, 19));
             threadOrdenacao.setDaemon(true);
             threadOrdenacao.start();
         });
@@ -160,15 +196,52 @@ public class Principal extends Application {
         });
 
         Button botao_count = new Button();
-        botao_count.setLayoutX(250); botao_count.setLayoutY(140);
+        botao_count.setLayoutX(220); botao_count.setLayoutY(140);
         botao_count.setText("Counting Sort");
-        botao_count.setOnAction(e -> {Texto.setText("Counting Sort");
-            Thread threadOrdenacao = new Thread(() -> mt.countingSort());
+        botao_count.setOnAction(e -> {
+            Texto.setText("Counting Sort");
+            paneVetor.getChildren().clear();
+
+            Thread threadOrdenacao = new Thread(() -> {
+
+                // Ordena primeiro
+                mt.countingSort();
+
+                // Depois atualiza a interface
+                Platform.runLater(() -> {
+
+                    int layoutX = 100;
+
+                    for (int i = 0; i < vet.length; i++, layoutX += 60) {
+                        vet[i] = new Button(String.valueOf(vet[i].getText()));
+
+                        vet[i].setLayoutX(layoutX);
+                        vet[i].setLayoutY(200);
+                        vet[i].setMinHeight(40);
+                        vet[i].setMinWidth(40);
+                        vet[i].setFont(new Font(18));
+
+                        paneVetor.getChildren().add(vet[i]);
+                    }
+                });
+            });
+
             threadOrdenacao.setDaemon(true);
             threadOrdenacao.start();
         });
 
-        pane.getChildren().addAll(botao_inicio, botao_quicksempivo,  botao_Gnome,  botao_count);
+        Button botao_heap = new Button();
+        botao_heap.setLayoutX(320); botao_heap.setLayoutY(140);
+        botao_heap.setText("Heap Sort");
+        botao_heap.setOnAction(e -> {Texto.setText("Heap Sort");
+            Thread threadOrdenacao = new Thread(() -> mt.heapSort());
+            threadOrdenacao.setDaemon(true);
+            threadOrdenacao.start();
+        });
+
+
+
+        pane.getChildren().addAll(botao_inicio, botao_quicksempivo,  botao_Gnome,  botao_count,   botao_heap);
 
         Texto = new Label();
         Texto.setText("Ola");
@@ -208,17 +281,17 @@ public class Principal extends Application {
         for (int k = 0; k < 10; k++) {
             Platform.runLater(() -> botaoI.setLayoutY(botaoI.getLayoutY() + 5));
             Platform.runLater(() -> botaoJ.setLayoutY(botaoJ.getLayoutY() - 5));
-            try { Thread.sleep(25); } catch (InterruptedException e) { e.printStackTrace(); }
+            try { Thread.sleep(10); } catch (InterruptedException e) { e.printStackTrace(); }
         }
         for (int k = 0; k < 16; k++) {
             Platform.runLater(() -> botaoI.setLayoutX(botaoI.getLayoutX() + andar));
             Platform.runLater(() -> botaoJ.setLayoutX(botaoJ.getLayoutX() - andar));
-            try { Thread.sleep(25); } catch (InterruptedException e) { e.printStackTrace(); }
+            try { Thread.sleep(10); } catch (InterruptedException e) { e.printStackTrace(); }
         }
         for (int k = 0; k < 10; k++) {
             Platform.runLater(() -> botaoI.setLayoutY(botaoI.getLayoutY() - 5));
             Platform.runLater(() -> botaoJ.setLayoutY(botaoJ.getLayoutY() + 5));
-            try { Thread.sleep(25); } catch (InterruptedException e) { e.printStackTrace(); }
+            try { Thread.sleep(10); } catch (InterruptedException e) { e.printStackTrace(); }
         }
     }
 
