@@ -30,28 +30,6 @@ public class Principal extends Application {
     private static final double LARGURA_PAINEL_ESQUERDO = 1000;
     private static final double Y_VETOR = 320;
 
-    // ---------- Estilos ----------
-    private static final String ESTILO_BOTAO_ACAO =
-            "-fx-background-color: linear-gradient(#42a5f5, #1565c0); " +
-                    "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; " +
-                    "-fx-background-radius: 8; -fx-padding: 8 14 8 14; " +
-                    "-fx-cursor: hand; " +
-                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 5, 0, 0, 2);";
-
-    private static final String ESTILO_BOTAO_ACAO_HOVER =
-            "-fx-background-color: linear-gradient(#64b5f6, #1976d2); " +
-                    "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; " +
-                    "-fx-background-radius: 8; -fx-padding: 8 14 8 14; " +
-                    "-fx-cursor: hand; " +
-                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 7, 0, 0, 3);";
-
-    private static final String ESTILO_BOTAO_VETOR =
-            "-fx-background-color: linear-gradient(#ffffff, #dfe9f5); " +
-                    "-fx-border-color: #1565c0; -fx-border-width: 2; " +
-                    "-fx-background-radius: 10; -fx-border-radius: 10; " +
-                    "-fx-font-weight: bold; -fx-text-fill: #0d3c72; " +
-                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 4, 0, 0, 1);";
-
     AnchorPane pane;
     Button botao_inicio;
     Label Texto;
@@ -80,13 +58,6 @@ public class Principal extends Application {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-    }
-
-
-    private void estilizarBotaoAcao(Button b) {
-        b.setStyle(ESTILO_BOTAO_ACAO);
-        b.setOnMouseEntered(e -> b.setStyle(ESTILO_BOTAO_ACAO_HOVER));
-        b.setOnMouseExited(e -> b.setStyle(ESTILO_BOTAO_ACAO));
     }
 
     public class MetodosOrd {
@@ -311,7 +282,6 @@ public class Principal extends Application {
 
         pane = new AnchorPane();
         pane.setPrefWidth(LARGURA_PAINEL_ESQUERDO);
-        pane.setStyle("-fx-background-color: linear-gradient(to bottom, #fafbfc, #e9eef5);");
         AnchorPane paneVetor = new AnchorPane();
 
         pivo = new Label();
@@ -319,7 +289,7 @@ public class Principal extends Application {
         pivo.setLayoutY(140);
         pivo.setText("");
         pivo.setFont(new Font(20));
-        pivo.setStyle("-fx-font-weight: bold; -fx-text-fill: #1565c0;");
+        pivo.setStyle("-fx-font-weight: bold;");
         pivo.setAlignment(Pos.TOP_RIGHT);
         pivo.setMouseTransparent(true);
 
@@ -339,7 +309,6 @@ public class Principal extends Application {
             painelVariaveis.limpar();
             painelCodigo.destacar(-1);
         });
-        estilizarBotaoAcao(botao_inicio);
 
         Button botao_quicksempivo = new Button();
         botao_quicksempivo.setLayoutX(10);
@@ -351,7 +320,6 @@ public class Principal extends Application {
             threadOrdenacao.setDaemon(true);
             threadOrdenacao.start();
         });
-        estilizarBotaoAcao(botao_quicksempivo);
 
         Button botao_Gnome = new Button();
         botao_Gnome.setLayoutX(180);
@@ -363,7 +331,6 @@ public class Principal extends Application {
             threadOrdenacao.setDaemon(true);
             threadOrdenacao.start();
         });
-        estilizarBotaoAcao(botao_Gnome);
 
         Button botao_heap = new Button();
         botao_heap.setLayoutX(310);
@@ -375,14 +342,13 @@ public class Principal extends Application {
             threadOrdenacao.setDaemon(true);
             threadOrdenacao.start();
         });
-        estilizarBotaoAcao(botao_heap);
 
         pane.getChildren().addAll(botao_inicio, botao_quicksempivo, botao_Gnome, botao_heap);
 
         Texto = new Label();
         Texto.setText("Ola");
         Texto.setFont(new Font(22));
-        Texto.setStyle("-fx-font-weight: bold; -fx-text-fill: #263238;");
+        Texto.setStyle("-fx-font-weight: bold;");
         Texto.setAlignment(Pos.CENTER);
         Texto.setMouseTransparent(true);
 
@@ -489,7 +455,6 @@ public class Principal extends Application {
             vet[i].setMinHeight(42);
             vet[i].setMinWidth(LARGURA_BOTAO_VETOR);
             vet[i].setFont(new Font(15));
-            vet[i].setStyle(ESTILO_BOTAO_VETOR);
             pane.getChildren().add(vet[i]);
         }
     }
