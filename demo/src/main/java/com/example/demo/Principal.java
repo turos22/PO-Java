@@ -1,146 +1,304 @@
 package com.example.demo;
+
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
 
 import java.util.Random;
 
 public class Principal extends Application {
+
+    // ---------- Tempo de pausa (em ms) usado para "animar" a execução linha a linha ----------
+    private static final long DELAY_LINHA = 100;
+
+    // ---------- Geometria do vetor (usada para centralizar as caixinhas) ----------
+    private static final int QTD_ELEMENTOS = 16;
+    private static final double LARGURA_BOTAO_VETOR = 40;
+    private static final double PASSO_VETOR = 45;
+    private static final double LARGURA_PAINEL_ESQUERDO = 1000;
+    private static final double Y_VETOR = 320;
+
+    // ---------- Estilos ----------
+    private static final String ESTILO_BOTAO_ACAO =
+            "-fx-background-color: linear-gradient(#42a5f5, #1565c0); " +
+                    "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; " +
+                    "-fx-background-radius: 8; -fx-padding: 8 14 8 14; " +
+                    "-fx-cursor: hand; " +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 5, 0, 0, 2);";
+
+    private static final String ESTILO_BOTAO_ACAO_HOVER =
+            "-fx-background-color: linear-gradient(#64b5f6, #1976d2); " +
+                    "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; " +
+                    "-fx-background-radius: 8; -fx-padding: 8 14 8 14; " +
+                    "-fx-cursor: hand; " +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 7, 0, 0, 3);";
+
+    private static final String ESTILO_BOTAO_VETOR =
+            "-fx-background-color: linear-gradient(#ffffff, #dfe9f5); " +
+                    "-fx-border-color: #1565c0; -fx-border-width: 2; " +
+                    "-fx-background-radius: 10; -fx-border-radius: 10; " +
+                    "-fx-font-weight: bold; -fx-text-fill: #0d3c72; " +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 4, 0, 0, 1);";
+
     AnchorPane pane;
     Button botao_inicio;
     Label Texto;
     private Button vet[];
     Label pivo;
 
+    // ---------- Painel de código e painel de variáveis ----------
+    private PainelCodigo painelCodigo;
+    private PainelVariaveis painelVariaveis;
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         launch(args);
     }
 
-    public void Trocar(int i, int j){
+    public void Trocar(int i, int j) {
         Button aux;
         aux = vet[j];
         vet[j] = vet[i];
         vet[i] = aux;
     }
 
+    private void destacarEsperar(int linha) {
+        painelCodigo.destacar(linha);
+        try {
+            Thread.sleep(DELAY_LINHA);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+
+    private void estilizarBotaoAcao(Button b) {
+        b.setStyle(ESTILO_BOTAO_ACAO);
+        b.setOnMouseEntered(e -> b.setStyle(ESTILO_BOTAO_ACAO_HOVER));
+        b.setOnMouseExited(e -> b.setStyle(ESTILO_BOTAO_ACAO));
+    }
+
     public class MetodosOrd {
-        public MetodosOrd() {}
 
+        private final String[] CODIGO_GNOME = {
+                "public void gnomeSort() {",                                   // 0
+                "    int i = 0;",                                              // 1
+                "    while (i < vet.length) {",                                // 2
+                "        if (i == 0 || vet[i] >= vet[i-1])",                   // 3
+                "            i++;",                                           // 4
+                "        else {",                                             // 5
+                "            Trocar(i, i-1);",                                 // 6
+                "            move_botoes(vet, i, i-1);",                       // 7
+                "            i--;",                                           // 8
+                "        }",                                                  // 9
+                "    }",                                                      // 10
+                "}"                                                           // 11
+        };
 
+        private final String[] CODIGO_QUICK = {
+                "public void quickSortPivo(int ini, int fim) {",               // 0
+                "    int pivo = vet[(ini+fim)/2];",                            // 1
+                "    int i = ini, j = fim;",                                   // 2
+                "    while (i <= j) {",                                       // 3
+                "        while (i<=fim && vet[i] < pivo) i++;",               // 4
+                "        while (j>=ini && vet[j] > pivo) j--;",               // 5
+                "        if (i <= j) {",                                      // 6
+                "            Trocar(i, j);",                                  // 7
+                "            move_botoes(vet, i, j);",                        // 8
+                "            i++;",                                           // 9
+                "            j--;",                                           // 10
+                "        }",                                                  // 11
+                "    }",                                                      // 12
+                "    if (ini < j) quickSortPivo(ini, j);",                    // 13
+                "    if (fim > i) quickSortPivo(i, fim);",                    // 14
+                "}"                                                           // 15
+        };
 
-        public void gnomeSort() {
-            int i = 0;
+        private final String[] CODIGO_HEAP = {
+                "public void heapSort() {",                                   // 0
+                "    int TL2 = vet.length;",                                  // 1
+                "    for (TL2 = vet.length; TL2 > 1; TL2--) {",               // 2
+                "        int pai = TL2/2 - 1;",                               // 3
+                "        while (pai >= 0) {",                                 // 4
+                "            int F1 = pai*2+1, F2 = F1+1;",                   // 5
+                "            int maiorF = F1;",                               // 6
+                "            if (F2 < TL2 && vet[F2] > vet[F1])",             // 7
+                "                maiorF = F2;",                               // 8
+                "            if (vet[maiorF] > vet[pai]) {",                  // 9
+                "                Trocar(pai, maiorF);",                       // 10
+                "                move_botoes(vet, pai, maiorF);",             // 11
+                "            }",                                              // 12
+                "            pai--;",                                         // 13
+                "        }",                                                  // 14
+                "        Trocar(0, TL2-1);",                                  // 15
+                "        move_botoes(vet, 0, TL2-1);",                        // 16
+                "    }",                                                      // 17
+                "}"                                                           // 18
+        };
 
-            while (i < vet.length) {
-                if ( i == 0 || Integer.parseInt(vet[i].getText()) >= Integer.parseInt(vet[i-1].getText()))
-                    i++;
-                else
-                {
-                    Trocar(i, i-1);
-                    move_botoes(vet, i, i-1);
-                    i--;
-                }
-            }
+        public MetodosOrd() {
         }
 
-        //public void timSort() {
-        //}
+        public void gnomeSort() {
+            painelCodigo.carregarCodigo(CODIGO_GNOME);
+            painelVariaveis.limpar();
 
-        public void countingSort() {
-            int k = 0;
-            for (int i = 0; i < vet.length; i++) {
-                if (k < Integer.parseInt(vet[i].getText()))
-                    k =  Integer.parseInt(vet[i].getText());
+            int i = 0;
+            destacarEsperar(1);
+            painelVariaveis.atualizar("i", String.valueOf(i));
+
+            destacarEsperar(2);
+            while (i < vet.length) {
+                destacarEsperar(3);
+                if (i == 0 || Integer.parseInt(vet[i].getText()) >= Integer.parseInt(vet[i - 1].getText())) {
+                    destacarEsperar(4);
+                    i++;
+                    painelVariaveis.atualizar("i", String.valueOf(i));
+                } else {
+                    destacarEsperar(6);
+                    Trocar(i, i - 1);
+                    destacarEsperar(7);
+                    move_botoes(vet, i, i - 1);
+                    destacarEsperar(8);
+                    i--;
+                    painelVariaveis.atualizar("i", String.valueOf(i));
+                }
+                destacarEsperar(2);
             }
-
-            int cumulativo[] = new int[k+1];
-            //Guarda as frequencias
-            for (int i = 0; i<vet.length;i++){
-                cumulativo[Integer.parseInt(vet[i].getText())] += 1;
-            }
-
-            //Junta elas de forma cumulativa
-            for (int i = 1; i<cumulativo.length;i++){
-                cumulativo[i] +=  cumulativo[i-1];
-            }
-
-            Button vetor_resultado[] = new Button[vet.length];
-            for (int i = vet.length - 1; i >= 0; i--) {
-                int valor = Integer.parseInt(vet[i].getText());
-                vetor_resultado[cumulativo[valor] - 1] = vet[i];
-                cumulativo[valor]--;
-            }
-
-            vet = vetor_resultado;
+            destacarEsperar(10);
+            painelCodigo.destacar(-1);
         }
 
         public void quickSortPivo(int ini, int fim) {
-           int pivto = Integer.parseInt(vet[(ini+fim)/2].getText());
-           pivo.setText(Integer.toString(pivto));
-           int aux;
-           int i = ini, j = fim;
-           while(i<j){
-               while(Integer.parseInt(vet[i].getText()) < pivto)i++;
-               while(Integer.parseInt(vet[j].getText()) > pivto)j--;
-               if (i <= j){
-                   Trocar(i, j);
-                   move_botoes(vet, i, j);
-                   i++;
-                   j--;
-               }
-           }
-           if (ini < j)
-               quickSortPivo(ini, j);
-           if (fim > i)
-               quickSortPivo(i, fim);
+            boolean chamadaInicial = (ini == 0 && fim == vet.length - 1);
+            if (chamadaInicial) {
+                painelCodigo.carregarCodigo(CODIGO_QUICK);
+                painelVariaveis.limpar();
+            }
+
+            destacarEsperar(1);
+            int pivto = Integer.parseInt(vet[(ini + fim) / 2].getText());
+            Platform.runLater(() -> pivo.setText(Integer.toString(pivto)));
+            painelVariaveis.atualizar("pivo", String.valueOf(pivto));
+            painelVariaveis.atualizar("ini", String.valueOf(ini));
+            painelVariaveis.atualizar("fim", String.valueOf(fim));
+
+            destacarEsperar(2);
+            int i = ini, j = fim;
+            painelVariaveis.atualizar("i", String.valueOf(i));
+            painelVariaveis.atualizar("j", String.valueOf(j));
+
+            destacarEsperar(3);
+            while (i <= j) {
+                destacarEsperar(4);
+                while (i <= fim && Integer.parseInt(vet[i].getText()) < pivto) {
+                    i++;
+                    painelVariaveis.atualizar("i", String.valueOf(i));
+                    destacarEsperar(4);
+                }
+                destacarEsperar(5);
+                while (j >= ini && Integer.parseInt(vet[j].getText()) > pivto) {
+                    j--;
+                    painelVariaveis.atualizar("j", String.valueOf(j));
+                    destacarEsperar(5);
+                }
+                destacarEsperar(6);
+                if (i <= j) {
+                    destacarEsperar(7);
+                    Trocar(i, j);
+                    destacarEsperar(8);
+                    move_botoes(vet, i, j);
+                    destacarEsperar(9);
+                    i++;
+                    painelVariaveis.atualizar("i", String.valueOf(i));
+                    destacarEsperar(10);
+                    j--;
+                    painelVariaveis.atualizar("j", String.valueOf(j));
+                }
+                destacarEsperar(3);
+            }
+
+            destacarEsperar(13);
+            if (ini < j)
+                quickSortPivo(ini, j);
+            destacarEsperar(14);
+            if (fim > i)
+                quickSortPivo(i, fim);
+
+            if (chamadaInicial) {
+                painelCodigo.destacar(-1);
+                Platform.runLater(() -> pivo.setText(""));
+            }
         }
 
-        //public void mergeSort() {
-        //}
-
-        //public void radixSort() {
-        //}
-
-        //public void combSort() {
-        //}
-
-        //public void bucketSort() {
-        //}
-
         public void heapSort() {
-            int TL2 = vet.length, pai, F1, F2;
-            int aux, maiorF;
+            painelCodigo.carregarCodigo(CODIGO_HEAP);
+            painelVariaveis.limpar();
 
-            for(TL2 = vet.length; TL2 > 1; TL2--){
-                {
-                    pai = TL2/2-1;
-                    while(pai >=0){
-                        F1 = pai*2+1;
-                        F2 = F1+1;
-                        maiorF = F1;
-                        if (F2 < TL2 && Integer.parseInt(vet[F2].getText()) > Integer.parseInt(vet[F1].getText()))
-                            maiorF = F2;
-                        if (Integer.parseInt(vet[maiorF].getText()) > Integer.parseInt(vet[pai].getText())){
-                            Trocar(pai, maiorF);
-                            move_botoes(vet, pai, maiorF);
-                        }
-                        pai--;
+            int TL2 = vet.length, pai, F1, F2;
+            int maiorF;
+            destacarEsperar(1);
+            painelVariaveis.atualizar("TL2", String.valueOf(TL2));
+
+            destacarEsperar(2);
+            for (TL2 = vet.length; TL2 > 1; TL2--) {
+                painelVariaveis.atualizar("TL2", String.valueOf(TL2));
+
+                destacarEsperar(3);
+                pai = TL2 / 2 - 1;
+                painelVariaveis.atualizar("pai", String.valueOf(pai));
+
+                destacarEsperar(4);
+                while (pai >= 0) {
+                    destacarEsperar(5);
+                    F1 = pai * 2 + 1;
+                    F2 = F1 + 1;
+                    painelVariaveis.atualizar("F1", String.valueOf(F1));
+                    painelVariaveis.atualizar("F2", String.valueOf(F2));
+
+                    destacarEsperar(6);
+                    maiorF = F1;
+                    painelVariaveis.atualizar("maiorF", String.valueOf(maiorF));
+
+                    destacarEsperar(7);
+                    if (F2 < TL2 && Integer.parseInt(vet[F2].getText()) > Integer.parseInt(vet[F1].getText())) {
+                        destacarEsperar(8);
+                        maiorF = F2;
+                        painelVariaveis.atualizar("maiorF", String.valueOf(maiorF));
                     }
 
+                    destacarEsperar(9);
+                    if (Integer.parseInt(vet[maiorF].getText()) > Integer.parseInt(vet[pai].getText())) {
+                        destacarEsperar(10);
+                        Trocar(pai, maiorF);
+                        destacarEsperar(11);
+                        move_botoes(vet, pai, maiorF);
+                    }
+
+                    destacarEsperar(13);
+                    pai--;
+                    painelVariaveis.atualizar("pai", String.valueOf(pai));
+                    destacarEsperar(4);
                 }
-                Trocar(0, TL2-1);
-                move_botoes(vet, 0, TL2-1);
+
+                destacarEsperar(15);
+                Trocar(0, TL2 - 1);
+                destacarEsperar(16);
+                move_botoes(vet, 0, TL2 - 1);
+                destacarEsperar(2);
             }
+            painelCodigo.destacar(-1);
         }
 
         public void shellSort() {
@@ -148,134 +306,155 @@ public class Principal extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws Exception
-    {
+    public void start(Stage stage) throws Exception {
         stage.setTitle("Pesquisa e Ordenacao");
+
         pane = new AnchorPane();
+        pane.setPrefWidth(LARGURA_PAINEL_ESQUERDO);
+        pane.setStyle("-fx-background-color: linear-gradient(to bottom, #fafbfc, #e9eef5);");
         AnchorPane paneVetor = new AnchorPane();
 
-
-        pivo =new Label();
-        pivo.setLayoutX(20); pivo.setLayoutY(140);
-        pivo.setText("safewefewefsefsaefsfsefsfsfsefsefsfsefsfsdf");
+        pivo = new Label();
+        pivo.setLayoutX(20);
+        pivo.setLayoutY(140);
+        pivo.setText("");
         pivo.setFont(new Font(20));
-        pivo.setStyle("-fx-font-weight: bold;");
+        pivo.setStyle("-fx-font-weight: bold; -fx-text-fill: #1565c0;");
         pivo.setAlignment(Pos.TOP_RIGHT);
         pivo.setMouseTransparent(true);
 
         AnchorPane.setTopAnchor(pivo, 100.0);
         AnchorPane.setLeftAnchor(pivo, 0.0);
         AnchorPane.setRightAnchor(pivo, 0.0);
-
         pane.getChildren().add(pivo);
-
 
         MetodosOrd mt = new MetodosOrd();
 
         Button botao_inicio = new Button();
-        botao_inicio.setLayoutX(10); botao_inicio.setLayoutY(100);
+        botao_inicio.setLayoutX(10);
+        botao_inicio.setLayoutY(20);
         botao_inicio.setText("Gerar Novos números desordenados");
-        botao_inicio.setOnAction(e -> {GerarAleatorio(vet, paneVetor);});
+        botao_inicio.setOnAction(e -> {
+            GerarAleatorio(vet, paneVetor);
+            painelVariaveis.limpar();
+            painelCodigo.destacar(-1);
+        });
+        estilizarBotaoAcao(botao_inicio);
 
         Button botao_quicksempivo = new Button();
-        botao_quicksempivo.setLayoutX(10); botao_quicksempivo.setLayoutY(140);
+        botao_quicksempivo.setLayoutX(10);
+        botao_quicksempivo.setLayoutY(60);
         botao_quicksempivo.setText("QuickSort Com Pivo");
-        botao_quicksempivo.setOnAction(e -> {Texto.setText("QuickSort Com Pivo");
-            Thread threadOrdenacao = new Thread(() -> mt.quickSortPivo(0, 19));
+        botao_quicksempivo.setOnAction(e -> {
+            Texto.setText("QuickSort Com Pivo");
+            Thread threadOrdenacao = new Thread(() -> mt.quickSortPivo(0, vet.length - 1));
             threadOrdenacao.setDaemon(true);
             threadOrdenacao.start();
         });
+        estilizarBotaoAcao(botao_quicksempivo);
 
         Button botao_Gnome = new Button();
-        botao_Gnome.setLayoutX(150); botao_Gnome.setLayoutY(140);
-        botao_Gnome.setText("Gnome");
-        botao_Gnome.setOnAction(e -> {Texto.setText("Gnome Sort");
+        botao_Gnome.setLayoutX(180);
+        botao_Gnome.setLayoutY(60);
+        botao_Gnome.setText("Gnome Sort");
+        botao_Gnome.setOnAction(e -> {
+            Texto.setText("Gnome Sort");
             Thread threadOrdenacao = new Thread(() -> mt.gnomeSort());
             threadOrdenacao.setDaemon(true);
             threadOrdenacao.start();
         });
-
-        Button botao_count = new Button();
-        botao_count.setLayoutX(220); botao_count.setLayoutY(140);
-        botao_count.setText("Counting Sort");
-        botao_count.setOnAction(e -> {
-            Texto.setText("Counting Sort");
-            paneVetor.getChildren().clear();
-
-            Thread threadOrdenacao = new Thread(() -> {
-
-                // Ordena primeiro
-                mt.countingSort();
-
-                // Depois atualiza a interface
-                Platform.runLater(() -> {
-
-                    int layoutX = 100;
-
-                    for (int i = 0; i < vet.length; i++, layoutX += 60) {
-                        vet[i] = new Button(String.valueOf(vet[i].getText()));
-
-                        vet[i].setLayoutX(layoutX);
-                        vet[i].setLayoutY(200);
-                        vet[i].setMinHeight(40);
-                        vet[i].setMinWidth(40);
-                        vet[i].setFont(new Font(18));
-
-                        paneVetor.getChildren().add(vet[i]);
-                    }
-                });
-            });
-
-            threadOrdenacao.setDaemon(true);
-            threadOrdenacao.start();
-        });
+        estilizarBotaoAcao(botao_Gnome);
 
         Button botao_heap = new Button();
-        botao_heap.setLayoutX(320); botao_heap.setLayoutY(140);
+        botao_heap.setLayoutX(310);
+        botao_heap.setLayoutY(60);
         botao_heap.setText("Heap Sort");
-        botao_heap.setOnAction(e -> {Texto.setText("Heap Sort");
+        botao_heap.setOnAction(e -> {
+            Texto.setText("Heap Sort");
             Thread threadOrdenacao = new Thread(() -> mt.heapSort());
             threadOrdenacao.setDaemon(true);
             threadOrdenacao.start();
         });
+        estilizarBotaoAcao(botao_heap);
 
-
-
-        pane.getChildren().addAll(botao_inicio, botao_quicksempivo,  botao_Gnome,  botao_count,   botao_heap);
+        pane.getChildren().addAll(botao_inicio, botao_quicksempivo, botao_Gnome, botao_heap);
 
         Texto = new Label();
         Texto.setText("Ola");
-        Texto.setFont(new Font(20));
-        Texto.setStyle("-fx-font-weight: bold;");
+        Texto.setFont(new Font(22));
+        Texto.setStyle("-fx-font-weight: bold; -fx-text-fill: #263238;");
         Texto.setAlignment(Pos.CENTER);
         Texto.setMouseTransparent(true);
 
-        AnchorPane.setTopAnchor(Texto, 100.0);
+        AnchorPane.setTopAnchor(Texto, 105.0);
         AnchorPane.setLeftAnchor(Texto, 0.0);
         AnchorPane.setRightAnchor(Texto, 0.0);
-
         pane.getChildren().add(Texto);
-        vet = new Button[20];
+
+        vet = new Button[QTD_ELEMENTOS];
         paneVetor.setMouseTransparent(true);
         pane.getChildren().addAll(paneVetor);
-        Scene scene = new Scene(pane, 1600, 900);
+        GerarAleatorio(vet, paneVetor);
+
+        painelVariaveis = new PainelVariaveis();
+        painelCodigo = new PainelCodigo();
+
+        Label tituloVariaveis = new Label("Variáveis e seus respectivos Valores");
+        tituloVariaveis.setFont(Font.font("Arial", 18));
+        tituloVariaveis.setStyle("-fx-font-weight: bold;");
+        tituloVariaveis.setMaxWidth(Double.MAX_VALUE);
+        tituloVariaveis.setAlignment(Pos.CENTER);
+
+        Label tituloCodigo = new Label("Código da Ordenação Escolhida");
+        tituloCodigo.setFont(Font.font("Arial", 18));
+        tituloCodigo.setStyle("-fx-font-weight: bold;");
+        tituloCodigo.setMaxWidth(Double.MAX_VALUE);
+        tituloCodigo.setAlignment(Pos.CENTER);
+
+        Region divisorHorizontal = new Region();
+        divisorHorizontal.setStyle("-fx-background-color: black;");
+        divisorHorizontal.setPrefHeight(4);
+
+        ScrollPane scrollVariaveis = new ScrollPane(painelVariaveis);
+        scrollVariaveis.setFitToWidth(true);
+        scrollVariaveis.setPrefHeight(250);
+
+        ScrollPane scrollCodigo = new ScrollPane(painelCodigo);
+        scrollCodigo.setFitToWidth(true);
+        VBox.setVgrow(scrollCodigo, Priority.ALWAYS);
+
+        VBox painelDireito = new VBox(8);
+        painelDireito.setPadding(new Insets(10));
+        painelDireito.setPrefWidth(600);
+        painelDireito.setStyle("-fx-background-color: #f2f2f2;");
+        painelDireito.getChildren().addAll(
+                tituloVariaveis,
+                divisorHorizontal,
+                scrollVariaveis,
+                tituloCodigo,
+                scrollCodigo
+        );
+
+        Region divisorVertical = new Region();
+        divisorVertical.setStyle("-fx-background-color: black;");
+        divisorVertical.setPrefWidth(4);
+
+        HBox raiz = new HBox();
+        raiz.getChildren().addAll(pane, divisorVertical, painelDireito);
+        HBox.setHgrow(pane, Priority.ALWAYS);
+        HBox.setHgrow(painelDireito, Priority.NEVER);
+
+        Scene scene = new Scene(raiz, 1600, 900);
         stage.setScene(scene);
         stage.show();
     }
 
-//    public void IniciarAcao(){
-//        Thread threadOrdenacao = new Thread(() -> mt.quickSortSemPivo(0, 19));
-//        threadOrdenacao.setDaemon(true);
-//        threadOrdenacao.start();
-//    }
-
-    private void move_botoes(Button vet[], int i, int j)
-    {
+    private void move_botoes(Button vet[], int i, int j) {
         if (i == j) return;
 
         Button botaoI = vet[i];
         Button botaoJ = vet[j];
-        double distancia = botaoJ.getLayoutX() - botaoI.getLayoutX(); // corrigido: era getLayoutY()
+        double distancia = botaoJ.getLayoutX() - botaoI.getLayoutX();
         double andar = distancia / 16;
 
         for (int k = 0; k < 10; k++) {
@@ -295,18 +474,22 @@ public class Principal extends Application {
         }
     }
 
-    private void GerarAleatorio(Button vet[], AnchorPane pane){
+    private void GerarAleatorio(Button vet[], AnchorPane pane) {
         pane.getChildren().clear();
-        int layoutX = 100;
 
-        for (int i = 0; i < 20; i++, layoutX+=60)
-        {
-            Random rand = new Random();
-            int num = rand.nextInt(1, 101);
+        double larguraTotal = (QTD_ELEMENTOS - 1) * PASSO_VETOR + LARGURA_BOTAO_VETOR;
+        double layoutX = (LARGURA_PAINEL_ESQUERDO - larguraTotal) / 2;
+
+        Random rand = new Random();
+        for (int i = 0; i < QTD_ELEMENTOS; i++, layoutX += PASSO_VETOR) {
+            int num = rand.nextInt(1, 100);
             vet[i] = new Button(String.valueOf(num));
-            vet[i].setLayoutX(layoutX); vet[i].setLayoutY(200);
-            vet[i].setMinHeight(40); vet[i].setMinWidth(40);
-            vet[i].setFont(new Font(18));
+            vet[i].setLayoutX(layoutX);
+            vet[i].setLayoutY(Y_VETOR);
+            vet[i].setMinHeight(42);
+            vet[i].setMinWidth(LARGURA_BOTAO_VETOR);
+            vet[i].setFont(new Font(15));
+            vet[i].setStyle(ESTILO_BOTAO_VETOR);
             pane.getChildren().add(vet[i]);
         }
     }
