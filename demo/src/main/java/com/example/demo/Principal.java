@@ -60,6 +60,56 @@ public class Principal extends Application {
         }
     }
 
+
+    private final String COR_PADRAO = "-fx-background-color: #3498db; -fx-text-fill: white;"; // Azul
+    private final String COR_DESTAQUE = "-fx-background-color: #e74c3c; -fx-text-fill: white;"; // Vermelho (ponteiros i, pai, etc)
+    private final String COR_SECUNDARIA = "-fx-background-color: #f1c40f; -fx-text-fill: black;"; // Amarelo (ponteiros j, F2, etc)
+    private final String COR_PIVO = "-fx-background-color: #9b59b6; -fx-text-fill: white;"; // Roxo (Pivô)
+    private final String COR_ORDENADO = "-fx-background-color: #2ecc71; -fx-text-fill: white;"; // Verde (Ordenado)
+
+    /**
+     * Pinta índices específicos com cores personalizadas, mantendo o restante padrão ou verde.
+     */
+    private void colorirIndices(int idx1, String cor1, int idx2, String cor2) {
+        Platform.runLater(() -> {
+            for (int k = 0; k < vet.length; k++) {
+                String estiloAtual = vet[k].getStyle();
+                // Se já estiver verde (ordenado), não perde o verde
+                if (estiloAtual != null && estiloAtual.contains("#2ecc71")) {
+                    continue;
+                }
+
+                if (k == idx1) {
+                    vet[k].setStyle(cor1);
+                } else if (k == idx2) {
+                    vet[k].setStyle(cor2);
+                } else {
+                    vet[k].setStyle(COR_PADRAO);
+                }
+            }
+        });
+    }
+
+    /**
+     * Marca um elemento específico como definitivamente ordenado (Verde).
+     */
+    private void marcarVerde(int indice) {
+        if (indice >= 0 && indice < vet.length) {
+            Platform.runLater(() -> vet[indice].setStyle(COR_ORDENADO));
+        }
+    }
+
+    /**
+     * Reseta todo o vetor para a cor padrão (útil ao iniciar).
+     */
+    private void resetarCoresVetor() {
+        Platform.runLater(() -> {
+            for (Button b : vet) {
+                b.setStyle(COR_PADRAO);
+            }
+        });
+    }
+
     public class MetodosOrd {
 
         private final String[] CODIGO_GNOME = {
@@ -124,6 +174,7 @@ public class Principal extends Application {
         public void gnomeSort() {
             painelCodigo.carregarCodigo(CODIGO_GNOME);
             painelVariaveis.limpar();
+            resetarCoresVetor();
 
             int i = 0;
             destacarEsperar(1);
@@ -131,6 +182,7 @@ public class Principal extends Application {
 
             destacarEsperar(2);
             while (i < vet.length) {
+                colorirIndices(i, COR_DESTAQUE, (i > 0 ? i-1: -1), COR_SECUNDARIA);
                 destacarEsperar(3);
                 if (i == 0 || Integer.parseInt(vet[i].getText()) >= Integer.parseInt(vet[i - 1].getText())) {
                     destacarEsperar(4);
@@ -147,6 +199,7 @@ public class Principal extends Application {
                 }
                 destacarEsperar(2);
             }
+            for (int k = 0; k < vet.length; k++) marcarVerde(k);
             destacarEsperar(10);
             painelCodigo.destacar(-1);
         }
@@ -156,11 +209,11 @@ public class Principal extends Application {
             if (chamadaInicial) {
                 painelCodigo.carregarCodigo(CODIGO_QUICK);
                 painelVariaveis.limpar();
+                resetarCoresVetor();
             }
 
             destacarEsperar(1);
             int pivto = Integer.parseInt(vet[(ini + fim) / 2].getText());
-            Platform.runLater(() -> pivo.setText(Integer.toString(pivto)));
             painelVariaveis.atualizar("pivo", String.valueOf(pivto));
             painelVariaveis.atualizar("ini", String.valueOf(ini));
             painelVariaveis.atualizar("fim", String.valueOf(fim));
@@ -172,15 +225,18 @@ public class Principal extends Application {
 
             destacarEsperar(3);
             while (i <= j) {
+                colorirIndices(i,COR_DESTAQUE,j,COR_SECUNDARIA);
                 destacarEsperar(4);
                 while (i <= fim && Integer.parseInt(vet[i].getText()) < pivto) {
                     i++;
+                    colorirIndices(i, COR_DESTAQUE, j, COR_SECUNDARIA);
                     painelVariaveis.atualizar("i", String.valueOf(i));
                     destacarEsperar(4);
                 }
                 destacarEsperar(5);
                 while (j >= ini && Integer.parseInt(vet[j].getText()) > pivto) {
                     j--;
+                    colorirIndices(i, COR_DESTAQUE, j, COR_SECUNDARIA);
                     painelVariaveis.atualizar("j", String.valueOf(j));
                     destacarEsperar(5);
                 }
@@ -210,12 +266,14 @@ public class Principal extends Application {
             if (chamadaInicial) {
                 painelCodigo.destacar(-1);
                 Platform.runLater(() -> pivo.setText(""));
+                for (int k = 0; k < vet.length; k++) marcarVerde(k);
             }
         }
 
         public void heapSort() {
             painelCodigo.carregarCodigo(CODIGO_HEAP);
             painelVariaveis.limpar();
+            resetarCoresVetor();
 
             int TL2 = vet.length, pai, F1, F2;
             int maiorF;
@@ -248,6 +306,7 @@ public class Principal extends Application {
                         maiorF = F2;
                         painelVariaveis.atualizar("maiorF", String.valueOf(maiorF));
                     }
+                    colorirIndices(pai, COR_DESTAQUE, maiorF, COR_SECUNDARIA);
 
                     destacarEsperar(9);
                     if (Integer.parseInt(vet[maiorF].getText()) > Integer.parseInt(vet[pai].getText())) {
@@ -267,8 +326,10 @@ public class Principal extends Application {
                 Trocar(0, TL2 - 1);
                 destacarEsperar(16);
                 move_botoes(vet, 0, TL2 - 1);
+                marcarVerde(TL2 - 1);
                 destacarEsperar(2);
             }
+            marcarVerde(0);
             painelCodigo.destacar(-1);
         }
 
@@ -455,7 +516,16 @@ public class Principal extends Application {
             vet[i].setMinHeight(42);
             vet[i].setMinWidth(LARGURA_BOTAO_VETOR);
             vet[i].setFont(new Font(15));
-            pane.getChildren().add(vet[i]);
+
+            Label lblIndice = new Label(String.valueOf(i));
+            lblIndice.setFont(new Font(14));
+            lblIndice.setStyle("-fx-font-weight: bold; -fx-text-fill: #555555;");
+            lblIndice.setMinWidth(LARGURA_BOTAO_VETOR);
+            lblIndice.setAlignment(Pos.CENTER);
+            lblIndice.setLayoutX(layoutX);
+            lblIndice.setLayoutY(Y_VETOR + 50);
+
+            pane.getChildren().addAll(vet[i], lblIndice);
         }
     }
 }
