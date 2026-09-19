@@ -10,14 +10,7 @@ import javafx.scene.text.FontWeight;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Painel responsável por exibir, em tempo real, o nome das variáveis do
- * algoritmo em execução e seus respectivos valores.
- *
- * Uso:
- *   painelVariaveis.limpar();                 // ao trocar de algoritmo
- *   painelVariaveis.atualizar("i", "3");       // cria ou atualiza a linha "i"
- */
+
 public class PainelVariaveis extends GridPane {
 
     private final Map<String, Label> valores = new LinkedHashMap<>();
@@ -28,7 +21,6 @@ public class PainelVariaveis extends GridPane {
         setPadding(new Insets(10));
     }
 
-    /** Remove todas as variáveis exibidas (chamar ao trocar de algoritmo). */
     public void limpar() {
         Platform.runLater(() -> {
             getChildren().clear();
@@ -36,7 +28,7 @@ public class PainelVariaveis extends GridPane {
         });
     }
 
-    /** Cria (se ainda não existir) ou atualiza o valor exibido para "nome". */
+
     public void atualizar(String nome, String valor) {
         Platform.runLater(() -> {
             Label labelValor = valores.get(nome);
