@@ -20,10 +20,10 @@ import java.util.Random;
 
 public class Principal extends Application {
 
-    // ---------- Tempo de pausa (em ms) usado para "animar" a execução linha a linha ----------
+    
     private static final long DELAY_LINHA = 100;
 
-    // ---------- Geometria do vetor (usada para centralizar as caixinhas) ----------
+    
     private static final int QTD_ELEMENTOS = 16;
     private static final double LARGURA_BOTAO_VETOR = 40;
     private static final double PASSO_VETOR = 45;
@@ -36,7 +36,7 @@ public class Principal extends Application {
     private Button vet[];
     Label pivo;
 
-    // ---------- Painel de código e painel de variáveis ----------
+    
     private PainelCodigo painelCodigo;
     private PainelVariaveis painelVariaveis;
 
@@ -67,9 +67,7 @@ public class Principal extends Application {
     private final String COR_PIVO = "-fx-background-color: #9b59b6; -fx-text-fill: white;"; // Roxo (Pivô)
     private final String COR_ORDENADO = "-fx-background-color: #2ecc71; -fx-text-fill: white;"; // Verde (Ordenado)
 
-    /**
-     * Pinta índices específicos com cores personalizadas, mantendo o restante padrão ou verde.
-     */
+  
     private void colorirIndices(int idx1, String cor1, int idx2, String cor2) {
         Platform.runLater(() -> {
             for (int k = 0; k < vet.length; k++) {
@@ -90,18 +88,14 @@ public class Principal extends Application {
         });
     }
 
-    /**
-     * Marca um elemento específico como definitivamente ordenado (Verde).
-     */
+  
     private void marcarVerde(int indice) {
         if (indice >= 0 && indice < vet.length) {
             Platform.runLater(() -> vet[indice].setStyle(COR_ORDENADO));
         }
     }
 
-    /**
-     * Reseta todo o vetor para a cor padrão (útil ao iniciar).
-     */
+
     private void resetarCoresVetor() {
         Platform.runLater(() -> {
             for (Button b : vet) {
