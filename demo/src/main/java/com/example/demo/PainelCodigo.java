@@ -7,16 +7,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-/**
- * Painel responsável por exibir o código-fonte do método de ordenação
- * escolhido, com fundo preto e fonte branca, destacando em verde escuro
- * a linha que está sendo executada no momento.
- *
- * Uso:
- *   painelCodigo.carregarCodigo(CODIGO_GNOME); // troca o código exibido
- *   painelCodigo.destacar(3);                  // destaca a linha de índice 3
- *   painelCodigo.destacar(-1);                 // remove qualquer destaque
- */
+
 public class PainelCodigo extends VBox {
 
     private static final Color COR_FUNDO_DESTAQUE = Color.web("#0a3d0a"); // verde escuro
@@ -49,10 +40,6 @@ public class PainelCodigo extends VBox {
         });
     }
 
-    /**
-     * Destaca a linha de índice informado (0-based) e remove o destaque
-     * da linha anterior. Passe -1 para apenas limpar o destaque atual.
-     */
     public void destacar(int indice) {
         Platform.runLater(() -> {
             if (linhasLabel == null) return;
