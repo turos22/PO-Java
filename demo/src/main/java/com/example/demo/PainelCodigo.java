@@ -23,7 +23,6 @@ public class PainelCodigo extends VBox {
         setFillWidth(true);
     }
 
-    /** Substitui o código exibido pelo array de linhas informado. */
     public void carregarCodigo(String[] linhas) {
         Platform.runLater(() -> {
             getChildren().clear();
