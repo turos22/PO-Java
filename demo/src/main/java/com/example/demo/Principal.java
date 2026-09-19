@@ -354,9 +354,9 @@ public class Principal extends Application {
         pivo.setAlignment(Pos.TOP_RIGHT);
         pivo.setMouseTransparent(true);
 
-        AnchorPane.setTopAnchor(pivo, 100.0);
-        AnchorPane.setLeftAnchor(pivo, 0.0);
-        AnchorPane.setRightAnchor(pivo, 0.0);
+        AnchorPane.setTopAnchor(pivo, Double.valueOf(100.0));
+        AnchorPane.setLeftAnchor(pivo, Double.valueOf(0.0));
+        AnchorPane.setRightAnchor(pivo, Double.valueOf(0.0));
         pane.getChildren().add(pivo);
 
         MetodosOrd mt = new MetodosOrd();
@@ -413,9 +413,9 @@ public class Principal extends Application {
         Texto.setAlignment(Pos.CENTER);
         Texto.setMouseTransparent(true);
 
-        AnchorPane.setTopAnchor(Texto, 105.0);
-        AnchorPane.setLeftAnchor(Texto, 0.0);
-        AnchorPane.setRightAnchor(Texto, 0.0);
+        AnchorPane.setTopAnchor(Texto, Double.valueOf(105.0));
+        AnchorPane.setLeftAnchor(Texto, Double.valueOf(0.0));
+        AnchorPane.setRightAnchor(Texto, Double.valueOf(0.0));
         pane.getChildren().add(Texto);
 
         vet = new Button[QTD_ELEMENTOS];
