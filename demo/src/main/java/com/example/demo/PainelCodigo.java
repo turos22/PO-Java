@@ -10,8 +10,8 @@ import javafx.scene.text.Font;
 
 public class PainelCodigo extends VBox {
 
-    private static final Color COR_FUNDO_DESTAQUE = Color.web("#0a3d0a"); // verde escuro
-    private static final Color COR_TEXTO_DESTAQUE = Color.web("#7CFC00"); // verde claro
+    private Color COR_FUNDO_DESTAQUE = Color.web("#0a3d0a"); // verde escuro
+    private Color COR_TEXTO_DESTAQUE = Color.web("#7CFC00"); // verde claro
 
     private Label[] linhasLabel;
     private int linhaAtual = -1;
