@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class PainelVariaveis extends GridPane {
 
-    private final Map<String, Label> valores = new LinkedHashMap<>();
+    private Map<String, Label> valores = new LinkedHashMap<>();
 
     public PainelVariaveis() {
         setHgap(15);
